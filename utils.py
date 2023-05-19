@@ -47,4 +47,4 @@ def init_log(name="project", level=logging.INFO, console=False, path="./log"):
     if console:
         logger.addHandler(system_handler)
 
-    logging.info("日志初始化完成")
+    logging.info("logger initialization")
