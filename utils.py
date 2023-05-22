@@ -8,7 +8,7 @@ import psutil
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--source_dir', type=str, help='source directory.')
+    parser.add_argument('--dir', type=str, help='directory.')
     return parser.parse_args()
 
 

@@ -1,3 +1,5 @@
-surface_forcing = "/input/surface_forcing"
-init_wqm = "/input/init_wqm"
-pro_read = "/input/PRO_READ"
+source = "/FVCOM_source"
+surface_forcing = "/surface_forcing"
+init_wqm = "/FVCOM_source/input/init_wqm"
+pro_read = "/FVCOM_source/input/PRO_READ"
+run = "/run"
