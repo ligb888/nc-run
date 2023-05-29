@@ -90,7 +90,7 @@ p = subprocess.Popen(sh, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PI
 
 while p.poll() != 0:
     logging.info("fvcom running...")
-    sleep(1)
+    sleep(10)
 
 logging.info("run fvcom end")
 logging.info("finished")
