@@ -1,6 +1,7 @@
-import task.task_main as task_main
+from task import task_main
 from util import utils
 import logging
+from util import constants
 
 
 if __name__ == '__main__':
@@ -25,10 +26,6 @@ if __name__ == '__main__':
     # script.run(args.home, args.cpus, args.casename)
 
     # 读取输出文件
-    task_main.start("", cpus=args.cpus)
+    task_main.start(args.home + constants.output + "/" + args.casename + "0001.nc", cpus=args.cpus)
 
     logging.info("finished")
-
-
-
-
