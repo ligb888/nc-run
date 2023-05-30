@@ -1,3 +1,4 @@
+from run import script
 from task import task_main
 from util import utils
 import logging
@@ -19,13 +20,17 @@ if __name__ == '__main__':
     elif args.casename is None:
         logging.error("实例名称不能为空")
         exit()
+    cpus = int(args.cpus)
 
     # 编译
     # script.make(args.home)
     # 执行
-    # script.run(args.home, args.cpus, args.casename)
+    # script.run(args.home, cpus, args.casename)
 
     # 读取输出文件
-    task_main.start(args.home + constants.output + "/" + args.casename + "0001.nc", cpus=args.cpus)
+    task_main.start(args.home + constants.output + "/" + args.casename + "_0001.nc", cpus)
+
+    # test
+    # task_main.start("./input/TH_0001.nc", cpus=int(args.cpus))
 
     logging.info("finished")

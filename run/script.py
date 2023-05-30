@@ -67,24 +67,24 @@ def run(home, cpus, casename):
     p_list = "0-" + str(cpus - 1)
 
     sh = rf"""\
-    cd {home}{constants.run}
-    #!/bin/bash
-    #BSUB -J FVCOM
-    #BSUB -n 1
-    #BSUB -R "span[ptile=1]"
-    #BSUB -o output_fvcomJ
-    #BSUB -e errput_fvcomJ
-    #BSUB -q normal
-    export OMP_NUM_THREADS=1
-    export I_MPI_PIN_PROCESSOR_LIST={p_list}
-    export I_MPI_FABRICS=shm:ofa
-    export I_MPI_FALLBACK=0
-    export I_MPI_DEBUG=5
-    mpirun ..{constants.source}/fvcom --casename={casename} >> supershuzhou.txt
-    exit 0
-    """
+cd {home}{constants.run}
+#!/bin/bash
+#BSUB -J FVCOM
+#BSUB -n 1
+#BSUB -R "span[ptile=1]"
+#BSUB -o output_fvcomJ
+#BSUB -e errput_fvcomJ
+#BSUB -q normal
+export OMP_NUM_THREADS=1
+export I_MPI_PIN_PROCESSOR_LIST={p_list}
+export I_MPI_FABRICS=shm:ofa
+export I_MPI_FALLBACK=0
+export I_MPI_DEBUG=5
+mpirun ..{constants.source}/fvcom --casename={casename} >> supershuzhou.txt
+exit 0
+"""
 
-    logging.info("run fvcom start")
+    logging.info(rf"run fvcom start {sh}")
     p = subprocess.Popen(sh, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while p.poll() != 0:
