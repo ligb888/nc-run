@@ -1,98 +1,34 @@
-from time import sleep
-import utils
+import task.task_main as task_main
+from util import utils
 import logging
-import constants
-import os
-import subprocess
 
-# 初始化日志
-utils.init_log(console=True)
-# 获取入参
-args = utils.get_args()
-# 入参判断
-if args.dir is None:
-    logging.error("dir不能为空")
 
-# sh = rf"""
-# cd {args.dir}{constants.source}
-# sed -i '/FLAG_26 =/{{s/#//g}}' make.inc
-# make clean > make_clean.log
-# make > make.log
-# """
-# logging.info("make source start")
-# os.system(sh)
-# logging.info("make source end")
-#
-# sh = rf"""
-# cd {args.dir}{constants.surface_forcing}
-# make clean > make_clean.log
-# make > make.log
-# """
-# logging.info("make surface_forcing start")
-# os.system(sh)
-# logging.info("make surface_forcing end")
-#
-# sh = rf"""
-# cd {args.dir}{constants.surface_forcing}
-# ./xsurfaceforce --filename=glbwnd.nml > xsurfaceforce.log
-# """
-# logging.info("run xsurfaceforce start")
-# os.system(sh)
-# logging.info("run xsurfaceforce end")
-#
-# sh = rf"""
-# cd {args.dir}{constants.source}
-# sed -i '/FLAG_26 =/s/^/#/' make.inc
-# make clean > make_clean.log
-# make > make.log
-# """
-# logging.info("make source 2 start")
-# os.system(sh)
-# logging.info("make source 2 end")
-#
-# sh = rf"""
-# cd {args.dir}{constants.init_wqm}
-# make clean > make_clean.log
-# make > make.log
-# """
-# logging.info("make init_wqm start")
-# os.system(sh)
-# logging.info("make init_wqm end")
-#
-# sh = rf"""
-# cd {args.dir}{constants.init_wqm}
-# ./xinit_file --filename=glbwnd.nml > xinit_file.log
-# """
-# logging.info("run xinit_file start")
-# os.system(sh)
-# logging.info("run xinit_file end")
+if __name__ == '__main__':
+    # 初始化日志
+    utils.init_log(name="main", console=True)
+    # 获取入参
+    args = utils.get_args()
+    # 入参判断
+    if args.home is None:
+        logging.error("home不能为空")
+        exit()
+    elif args.cpus is None:
+        logging.error("cpu数量不能为空")
+        exit()
+    elif args.casename is None:
+        logging.error("实例名称不能为空")
+        exit()
 
-sh = rf"""\
-cd {args.dir}{constants.run}
-#!/bin/bash
-#BSUB -J FVCOM
-#BSUB -n 1
-#BSUB -R "span[ptile=1]"
-#BSUB -o output_fvcomJ
-#BSUB -e errput_fvcomJ
-#BSUB -q normal
-export OMP_NUM_THREADS=1
-export I_MPI_PIN_PROCESSOR_LIST=0-11
-export I_MPI_FABRICS=shm:ofa
-export I_MPI_FALLBACK=0
-export I_MPI_DEBUG=5
-mpirun ..{constants.source}/fvcom --casename=TH >> supershuzhou.txt
-exit 0
-"""
+    # 编译
+    # script.make(args.home)
+    # 执行
+    # script.run(args.home, args.cpus, args.casename)
 
-logging.info("run fvcom start")
-p = subprocess.Popen(sh, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # 读取输出文件
+    task_main.start("", cpus=args.cpus)
 
-while p.poll() != 0:
-    logging.info("fvcom running...")
-    sleep(10)
+    logging.info("finished")
 
-logging.info("run fvcom end")
-logging.info("finished")
+
 
 

@@ -8,7 +8,9 @@ import psutil
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dir', type=str, help='directory.')
+    parser.add_argument('--home', type=str, help='home directory.')
+    parser.add_argument('--cpus', type=str, help='cpu number.')
+    parser.add_argument('--casename', type=str, help='case name.')
     return parser.parse_args()
 
 
@@ -26,7 +28,7 @@ def init_log(name="project", level=logging.INFO, console=False, path="./log"):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    formatter = logging.Formatter("%(asctime)s-%(process)d-%(levelname)s-%(filename)s[:%(lineno)d]-%(message)s")
+    formatter = logging.Formatter("%(asctime)s-%(process)d-%(processName)s-%(levelname)s-%(filename)s[:%(lineno)d]-%(message)s")
 
     handler = TimedRotatingFileHandler(
         filename=path + '/' + name + '.log',
@@ -47,4 +49,4 @@ def init_log(name="project", level=logging.INFO, console=False, path="./log"):
     if console:
         logger.addHandler(system_handler)
 
-    logging.info("logger initialization")
+    # logging.info("logger initialization")

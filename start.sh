@@ -1,1 +1,1 @@
-python3 main.py --dir /home/water/zhao
+python3 main.py --home /home/water/zhao --casename TH --cpus 12
