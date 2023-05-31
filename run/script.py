@@ -1,8 +1,10 @@
-import logging
 import os
-from util import constants
+from util import constants, utils
 import subprocess
 from time import sleep
+
+# 初始化日志
+logger = utils.get_logger(name="main", console=True)
 
 
 # 编译
@@ -13,26 +15,26 @@ def make(home):
     make clean > make_clean.log
     make > make.log
     """
-    logging.info("make source start")
+    logger.info("make source start")
     os.system(sh)
-    logging.info("make source end")
+    logger.info("make source end")
 
     sh = rf"""
     cd {home}{constants.surface_forcing}
     make clean > make_clean.log
     make > make.log
     """
-    logging.info("make surface_forcing start")
+    logger.info("make surface_forcing start")
     os.system(sh)
-    logging.info("make surface_forcing end")
+    logger.info("make surface_forcing end")
 
     sh = rf"""
     cd {home}{constants.surface_forcing}
     ./xsurfaceforce --filename=glbwnd.nml > xsurfaceforce.log
     """
-    logging.info("run xsurfaceforce start")
+    logger.info("run xsurfaceforce start")
     os.system(sh)
-    logging.info("run xsurfaceforce end")
+    logger.info("run xsurfaceforce end")
 
     sh = rf"""
     cd {home}{constants.source}
@@ -40,26 +42,26 @@ def make(home):
     make clean > make_clean.log
     make > make.log
     """
-    logging.info("make source 2 start")
+    logger.info("make source 2 start")
     os.system(sh)
-    logging.info("make source 2 end")
+    logger.info("make source 2 end")
 
     sh = rf"""
     cd {home}{constants.init_wqm}
     make clean > make_clean.log
     make > make.log
     """
-    logging.info("make init_wqm start")
+    logger.info("make init_wqm start")
     os.system(sh)
-    logging.info("make init_wqm end")
+    logger.info("make init_wqm end")
 
     sh = rf"""
     cd {home}{constants.init_wqm}
     ./xinit_file --filename=glbwnd.nml > xinit_file.log
     """
-    logging.info("run xinit_file start")
+    logger.info("run xinit_file start")
     os.system(sh)
-    logging.info("run xinit_file end")
+    logger.info("run xinit_file end")
 
 
 def run(home, cpus, casename):
@@ -84,11 +86,11 @@ mpirun ..{constants.source}/fvcom --casename={casename} >> supershuzhou.txt
 exit 0
 """
 
-    logging.info(rf"run fvcom start")
+    logger.info(rf"run fvcom start")
     p = subprocess.Popen(sh, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while p.poll() != 0:
-        logging.info("fvcom running...")
+        logger.info("fvcom running...")
         sleep(30)
 
-    logging.info("run fvcom end")
+    logger.info("run fvcom end")

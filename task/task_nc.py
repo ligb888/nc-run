@@ -1,6 +1,5 @@
 import calendar
 import csv
-import logging
 import os
 import time
 import traceback
@@ -9,9 +8,11 @@ from netCDF4 import Dataset
 from util import utils
 import matplotlib.pyplot as plt
 
+# 初始化日志
+logger = utils.get_logger(name="out", console=True)
+
 
 def out_excel(file_path, data):
-    utils.init_log(name="out_"+str(os.getpid()), console=True)
     try:
         with open(file_path, mode='w', newline='' "") as file:
             writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -25,11 +26,11 @@ def out_excel(file_path, data):
                 for i in range(len(data)):
                     writer.writerow([data[i]])
     except:
-        logging.info("生成csv出错" + traceback.format_exc())
+        logger_out = utils.get_logger(name="out_err_" + os.getpid(), console=True)
+        logger_out.info("生成csv出错" + traceback.format_exc())
 
 
 def out_img(file_path, x, y, var, data):
-    utils.init_log(name="out_"+str(os.getpid()), console=True)
     try:
         if len(data.shape) == 2:
             data = data[0]
@@ -39,7 +40,8 @@ def out_img(file_path, x, y, var, data):
         plt.colorbar()
         plt.savefig(file_path)
     except:
-        logging.info("生成图片出错" + traceback.format_exc())
+        logger_out = utils.get_logger(name="out_err_" + os.getpid(), console=True)
+        logger_out.info("生成图片出错" + traceback.format_exc())
     finally:
         plt.close()
 
@@ -55,13 +57,12 @@ class TaskNcProcess(Process):
 
     def run(self) -> None:
         try:
-            utils.init_log(name="task_nc", console=True)
             # 进程池
             pool = Pool(self.cpus)
             # 数据读入
             nc = Dataset(self.input_path)
             # 所有字段
-            logging.info(rf"nc loaded, keys = {nc.variables.keys()}")
+            logger.info(rf"nc loaded, keys = {nc.variables.keys()}")
             # data字段数组
             data_var = []
             data_var_type = []
@@ -102,7 +103,7 @@ class TaskNcProcess(Process):
             if not os.path.exists(home_dir):
                 os.makedirs(home_dir)
 
-            logging.info("开始下发任务...")
+            logger.info("开始下发任务...")
             # 遍历数据
             for i in range(len(data_var)):
                 var = data_var[i]
@@ -122,7 +123,7 @@ class TaskNcProcess(Process):
             pool.close()
             pool.join()
             nc.close()
-            logging.info("任务下发完成")
+            logger.info("任务下发完成")
         except:
-            logging.error("获取任务失败" + traceback.format_exc())
+            logger.error("获取任务失败" + traceback.format_exc())
 

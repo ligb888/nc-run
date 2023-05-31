@@ -24,7 +24,11 @@ def is_running(process_name):
     return result
 
 
-def init_log(name="project", level=logging.INFO, console=False, path="./log"):
+def get_logger(name="project", level=logging.INFO, console=False, path="./log"):
+    logger = logging.getLogger(name)
+    if len(logger.handlers) > 0:
+        return logger
+
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -43,10 +47,10 @@ def init_log(name="project", level=logging.INFO, console=False, path="./log"):
     system_handler.setLevel(level)
     system_handler.setFormatter(formatter)
 
-    logger = logging.getLogger()
     logger.setLevel(level)
     logger.addHandler(handler)
     if console:
         logger.addHandler(system_handler)
 
     # logging.info("logger initialization")
+    return logger

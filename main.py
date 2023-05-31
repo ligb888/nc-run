@@ -1,24 +1,23 @@
 from run import script
 from task import task_main
 from util import utils
-import logging
 from util import constants
 
+# 初始化日志
+logger = utils.get_logger(name="main", console=True)
 
 if __name__ == '__main__':
-    # 初始化日志
-    utils.init_log(name="main", console=True)
     # 获取入参
     args = utils.get_args()
     # 入参判断
     if args.home is None:
-        logging.error("home不能为空")
+        logger.error("home不能为空")
         exit()
     elif args.cpus is None:
-        logging.error("cpu数量不能为空")
+        logger.error("cpu数量不能为空")
         exit()
     elif args.casename is None:
-        logging.error("实例名称不能为空")
+        logger.error("实例名称不能为空")
         exit()
     cpus = int(args.cpus)
 
@@ -33,4 +32,4 @@ if __name__ == '__main__':
     # test
     # task_main.start("./input/TH_0001.nc", cpus=int(args.cpus))
 
-    logging.info("finished")
+    logger.info("finished")
