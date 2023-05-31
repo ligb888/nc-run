@@ -1,5 +1,5 @@
 source = "/FVCOM_source"
-surface_forcing = "/surface_forcing"
+surface_forcing = "/FVCOM_source/input/surface_forcing"
 init_wqm = "/FVCOM_source/input/init_wqm"
 pro_read = "/FVCOM_source/input/PRO_READ"
 run = "/run"

@@ -84,11 +84,11 @@ mpirun ..{constants.source}/fvcom --casename={casename} >> supershuzhou.txt
 exit 0
 """
 
-    logging.info(rf"run fvcom start {sh}")
+    logging.info(rf"run fvcom start")
     p = subprocess.Popen(sh, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while p.poll() != 0:
         logging.info("fvcom running...")
-        sleep(10)
+        sleep(30)
 
     logging.info("run fvcom end")
