@@ -4,6 +4,8 @@ import os
 import time
 import traceback
 from multiprocessing import Process, Pool
+import imageio
+import numpy as np
 from netCDF4 import Dataset
 from util import utils
 import matplotlib.pyplot as plt
@@ -26,29 +28,58 @@ def out_excel(file_path, data):
                 for i in range(len(data)):
                     writer.writerow([data[i]])
     except:
-        logger_out = utils.get_logger(name="out_err_" + os.getpid(), console=True)
+        logger_out = utils.get_logger(name="out_err_" + str(os.getpid()), console=True)
         logger_out.info("生成csv出错" + traceback.format_exc())
 
 
-def out_img(file_path, x, y, var, data):
+def out_img(file_path, x, y, j, var, data):
     try:
-        if len(data.shape) == 2:
-            data = data[0]
+        # 刻度处理
+        all_data = []
+        img_data = data[j]
+        if len(data[j].shape) == 2:
+            img_data = data[j][0]
+            for item in data:
+                all_data.append(item[0])
+        else:
+            all_data = data
+        count = int(len(all_data) * 0.1)
+        all_data = np.sort(np.array(all_data).flatten())
+        if count > 2:
+            all_data = all_data[count:-count]
+        vmin = all_data.min()
+        vmax = all_data.max()
+
+        # 画图
         plt.figure(figsize=(9.6, 7.2))
         plt.title(var)
-        plt.scatter(x, y, s=10, alpha=0.8, c=data, cmap='jet', linewidth=0)
+        plt.scatter(x, y, s=10, alpha=0.8, c=img_data, cmap='jet', linewidth=0, vmin=vmin, vmax=vmax)
         plt.colorbar()
         plt.savefig(file_path)
     except:
-        logger_out = utils.get_logger(name="out_err_" + os.getpid(), console=True)
+        logger_out = utils.get_logger(name="out_err_" + str(os.getpid()), console=True)
         logger_out.info("生成图片出错" + traceback.format_exc())
     finally:
         plt.close()
 
 
+def out_gif(path):
+    try:
+        frames = []
+        for file in os.listdir(path):
+            if not os.path.isdir(file) and os.path.splitext(file)[-1] == ".png":
+                img = imageio.v2.imread(path + "/" + file)
+                frames.append(img)
+        if len(frames) > 0:
+            imageio.v2.mimsave(path + "/0.gif", frames, 'GIF', duration=3000)
+    except:
+        logger_out = utils.get_logger(name="out_err_" + str(os.getpid()), console=True)
+        logger_out.info("转换动图出错" + traceback.format_exc())
+
+
 class TaskNcProcess(Process):
     # 获取任务
-    def __init__(self, cpus, input_path, task_queue, out_dir="./out"):
+    def __init__(self, cpus, input_path, task_queue, out_dir="./output"):
         self.cpus = cpus
         self.input_path = input_path
         self.task_queue = task_queue
@@ -117,13 +148,20 @@ class TaskNcProcess(Process):
                     img_path = curr_dir + "/" + str(j) + ".png"
                     curr_x = x if var_type == "2" or var_type == "3" else xc
                     curr_y = y if var_type == "2" or var_type == "3" else yc
-                    pool.apply_async(out_excel, args=(excel_path, data[j],))
-                    pool.apply_async(out_img, args=(img_path, curr_x, curr_y, var, data[j],))
+                    # 输出excel任务
+                    # pool.apply_async(out_excel, args=(excel_path, data[j],))
+                    # 输出图片任务
+                    pool.apply_async(out_img, args=(img_path, curr_x, curr_y, j, var, data,))
+
+            # 遍历数据，下发输出动态图任务
+            for var in data_var:
+                curr_dir = home_dir + "/" + var
+                pool.apply_async(out_gif, args=(curr_dir,))
 
             pool.close()
-            pool.join()
-            nc.close()
             logger.info("任务下发完成")
+            pool.join()
+            logger.info("任务执行完成")
+            nc.close()
         except:
             logger.error("获取任务失败" + traceback.format_exc())
-

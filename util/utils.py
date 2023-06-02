@@ -24,7 +24,7 @@ def is_running(process_name):
     return result
 
 
-def get_logger(name="project", level=logging.INFO, console=False, path="./log"):
+def get_logger(name="project", level=logging.INFO, console=False, path="./logs"):
     logger = logging.getLogger(name)
     if len(logger.handlers) > 0:
         return logger

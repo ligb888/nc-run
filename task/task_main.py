@@ -18,7 +18,7 @@ def start(input_path, cpus: int):
     task_p.start()
     while task_p.is_alive():
         logger.info("输出任务进行中...")
-        sleep(30)
+        sleep(15)
     task_p.join()
 
 
