@@ -30,6 +30,6 @@ if __name__ == '__main__':
     task_main.start(args.home + constants.output + "/" + args.casename + "_0001.nc", cpus)
 
     # test
-    # task_main.start("./input/TH_0001.nc", cpus=int(args.cpus))
+    # task_main.start("./input/TH_0001_0530.nc", cpus=6)
 
     logger.info("finished")
