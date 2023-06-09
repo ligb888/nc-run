@@ -27,9 +27,9 @@ if __name__ == '__main__':
     # script.run(args.home, cpus, args.casename)
 
     # 读取输出文件
-    task_main.start(args.home + constants.output + "/" + args.casename + "_0001.nc", cpus)
+    # task_main.start(args.home + constants.output + "/" + args.casename + "_0001.nc", cpus)
 
     # test
-    # task_main.start("./input/TH_0001_0530.nc", cpus=6)
+    task_main.start("./input/TH_0001_0530.nc", cpus=6)
 
     logger.info("finished")
