@@ -1,1 +1,0 @@
-python3 main.py --home /home/water/zhao --casename TH --cpus 30

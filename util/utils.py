@@ -35,11 +35,11 @@ def get_logger(name="project", level=logging.INFO, console=False, path="./logs")
     formatter = logging.Formatter("%(asctime)s-%(process)d-%(processName)s-%(levelname)s-%(filename)s[:%(lineno)d]-%(message)s")
 
     handler = TimedRotatingFileHandler(
-        filename=path + '/' + name + '.log',
-        when="MIDNIGHT", interval=1, backupCount=10, encoding="utf-8"
+        filename=path + '/' + name + '.log', encoding="utf-8",
+        # when="MIDNIGHT", interval=1, backupCount=10
     )
-    handler.suffix = "%Y%m%d.log"
-    handler.extMatch = re.compile(r"^" + name + "_\d{4}\d{2}\d{2}.log$")
+    # handler.suffix = "%Y%m%d.log"
+    # handler.extMatch = re.compile(r"^" + name + "_\d{4}\d{2}\d{2}.log$")
     handler.setLevel(level)
     handler.setFormatter(formatter)
 

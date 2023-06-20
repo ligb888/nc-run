@@ -1,0 +1,1 @@
+nohup gunicorn -b 0.0.0.0:9001 api:app >/dev/null 2>&1 &

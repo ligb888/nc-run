@@ -1,0 +1,1 @@
+python3 service.py --home /home/water/zhao --casename TH --cpus 24

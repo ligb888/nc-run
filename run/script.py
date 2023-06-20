@@ -4,7 +4,7 @@ import subprocess
 from time import sleep
 
 # 初始化日志
-logger = utils.get_logger(name="main", console=True)
+logger = utils.get_logger(name="service", console=True)
 
 
 # 编译
