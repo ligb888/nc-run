@@ -178,8 +178,8 @@ class TaskNcProcess(Process):
                 # 循环时间维度
                 for j in range(len(data)):
                     # 入参
-                    excel_path = curr_dir + "/" + str(j) + ".csv"
-                    img_path = curr_dir + "/" + str(j) + ".png"
+                    excel_path = rf"{curr_dir}/{j}.csv"
+                    img_path = rf"{curr_dir}/{j}.png"
                     curr_x = x if var_type == "2" or var_type == "3" else xc
                     curr_y = y if var_type == "2" or var_type == "3" else yc
                     img_data = data[j]

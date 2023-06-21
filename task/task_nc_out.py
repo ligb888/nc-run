@@ -38,7 +38,7 @@ def out_img(img_path, curr_x, curr_y, vmin, vmax, j, var, img_data):
     try:
         # 画图
         plt.figure(figsize=(9.6, 7.2))
-        plt.title(var + "-" + str(j))
+        plt.title(rf"{var}-{j}")
         plt.scatter(curr_x, curr_y, s=16, alpha=0.8, c=img_data, cmap='jet', linewidth=0, vmin=vmin, vmax=vmax)
         plt.colorbar()
         plt.savefig(img_path)
@@ -81,7 +81,7 @@ def out_flow_draw(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, s
         # 增加标尺
         speed_max = speed_min + speed_range
         label_speed = math.floor(speed_max*100)/100
-        label = str(label_speed) + " m/s"
+        label = rf"{label_speed} m/s"
         fontprops = fm.FontProperties(size=24, family='monospace')
         scalebar = AnchoredSizeBar(ax.transData, 2360 * label_speed / speed_max, label, 'upper right',
                                    sep=10, borderpad=2, pad=1, color='b', fontproperties=fontprops, width=10,
@@ -119,7 +119,7 @@ def out_flow_draw(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, s
             y_add = length * math.sin(math.radians(angle_arr[j]))
             plt.arrow(curr_x[j], curr_y[j], x_add, y_add, width=width, fc=color, ec=color, alpha=alpha)
         # 保存后清空图
-        plt.savefig(img_path + "/" + str(i) + ".png")
+        plt.savefig(rf"{img_path}/{i}.png")
     except:
         logger.info("生成图片出错" + traceback.format_exc())
     finally:
@@ -160,7 +160,7 @@ def out_flow_draw2(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, 
         # 增加标尺
         speed_max = speed_min + speed_range
         label_speed = math.floor(speed_max*100)/100
-        label = str(label_speed) + " m/s"
+        label = rf"{label_speed} m/s"
         fontprops = fm.FontProperties(size=24, family='monospace')
         scalebar = AnchoredSizeBar(ax.transData, 2360 * label_speed / speed_max, label, 'upper right',
                                    sep=10, borderpad=2, pad=1, color='b', fontproperties=fontprops, width=10, frameon=False,
@@ -198,7 +198,7 @@ def out_flow_draw2(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, 
             y_add = length * math.sin(math.radians(angle_arr[j]))
             plt.arrow(curr_x[j], curr_y[j], x_add, y_add, width=width, fc=color, ec=color, alpha=alpha)
         # 保存后清空图
-        plt.savefig(img_path + "/" + str(i) + ".png", transparent=True)
+        plt.savefig(rf"{img_path}/{i}.png", transparent=True)
     except:
         logger.info("生成图片出错" + traceback.format_exc())
     finally:

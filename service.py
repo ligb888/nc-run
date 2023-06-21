@@ -43,4 +43,4 @@ if __name__ == '__main__':
         logger.error("错误的cpu数量")
 
     # 执行
-    whole(args.home, cpus, args.casename, rf"./output/{str(calendar.timegm(time.gmtime()))}")
+    whole(args.home, cpus, args.casename, rf"./output/{calendar.timegm(time.gmtime())}")

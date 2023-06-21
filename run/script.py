@@ -66,7 +66,7 @@ def make(home):
 
 def run(home, cpus, casename):
     # 执行CPU列表
-    p_list = "0-" + str(cpus - 1)
+    p_list = rf"0-{cpus-1}"
 
     sh = rf"""\
 cd {home}{constants.run}
