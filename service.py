@@ -10,15 +10,13 @@ logger = utils.get_logger(name="service", console=True)
 
 
 def whole(home, cpus: int, casename, output_path):
-    # # 编译
+    # 编译
     script.make(home)
     # 执行
     script.run(home, cpus, casename)
     # 读取输出文件
     task_main.start(home + constants.output + "/" + casename + "_0001.nc", cpus, output_path)
 
-    # test
-    # task_main.start("./input/TH_0001_0530.nc", 6, output_path)
     # 执行完成
     logger.info("finished")
 

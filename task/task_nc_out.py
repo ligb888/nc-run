@@ -34,11 +34,28 @@ def out_excel(excel_path, data):
         logger.info("生成csv出错" + traceback.format_exc())
 
 
-def out_img(img_path, curr_x, curr_y, vmin, vmax, j, var, img_data):
+def out_img(img_path, curr_x, curr_y, vmin, vmax, ctime, var, img_data, unit=""):
     try:
+        # 基础设置
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False
+        # 参数处理
+        unit_str = ""
+        if unit is not None and unit != "":
+            unit_str = rf"({unit})"
         # 画图
         plt.figure(figsize=(9.6, 7.2))
-        plt.title(rf"{var}-{j}")
+        plt.title(f"{var}{unit_str}\n{ctime}", loc="right")
+        plt.xlim(-2000, 70000)
+        plt.ylim(-2000, 70000)
+        # 设置刻度label
+        ax = plt.gca()
+        ax.set_xticks([9347.05, 25241.15, 41135.25, 57029.35])
+        ax.set_xticklabels(["120°0'", "120°10'", "120°20'", "120°30'"], fontsize=12)
+        ax.set_yticks([8697.78, 27193.34, 45688.9, 64184.46])
+        ax.set_yticklabels(["31°0'", "31°10'", "31°20'", "31°30'"], fontsize=12)
+        plt.grid()
+        # 设置图片数据
         plt.scatter(curr_x, curr_y, s=16, alpha=0.8, c=img_data, cmap='jet', linewidth=0, vmin=vmin, vmax=vmax)
         plt.colorbar()
         plt.savefig(img_path)
@@ -50,16 +67,13 @@ def out_img(img_path, curr_x, curr_y, vmin, vmax, j, var, img_data):
 
 def out_flow_draw(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, speed_min, speed_range):
     try:
-        # 字体设置
+        # 基础设置
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
         # 图片大小
         plt.figure(figsize=(24, 20))
         # 标题
-        # plt.title("流场图", loc='right', c="b", fontsize=48)
-        plt.text(x=58000, y=74000, s=rf'流场图-深度{k}', fontdict=dict(fontsize=36, color='black', weight='bold'))
-        plt.text(x=51200, y=71000, s=rf'{ctime}', fontdict=dict(fontsize=36, color='black', weight='bold'))
-        plt.grid()
+        plt.title(f"流场图-深度{k}\n{ctime}", loc="right", fontdict=dict(fontsize=36, color='black', weight='bold'))
         ax = plt.gca()
 
         # 设置字体、边框宽度
@@ -77,6 +91,7 @@ def out_flow_draw(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, s
         ax.set_xticklabels(["120°0'", "120°10'", "120°20'", "120°30'"], fontsize=32)
         ax.set_yticks([8697.78, 27193.34, 45688.9, 64184.46])
         ax.set_yticklabels(["31°0'", "31°10'", "31°20'", "31°30'"], fontsize=32)
+        plt.grid()
 
         # 增加标尺
         speed_max = speed_min + speed_range
@@ -126,17 +141,16 @@ def out_flow_draw(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, s
         plt.close()
 
 
+# 透明背景的流场图
 def out_flow_draw2(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, speed_min, speed_range):
     try:
-        # 字体设置
+        # 基础设置
         plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False
         # 图片大小
         plt.figure(figsize=(24, 20))
         # 标题
-        # plt.title("流场图", loc='right', c="b", fontsize=48)
-        plt.text(x=58000, y=74000, s=rf'流场图-深度{k}', fontdict=dict(fontsize=36, color='white', weight='bold'))
-        plt.text(x=51200, y=71000, s=rf'{ctime}', fontdict=dict(fontsize=36, color='white', weight='bold'))
-        plt.grid()
+        plt.title(f"流场图-深度{k}\n{ctime}", loc="right", fontdict=dict(fontsize=36, color='white', weight='bold'))
         ax = plt.gca()
 
         # 隐藏刻度、标签、周边空白等
@@ -163,7 +177,7 @@ def out_flow_draw2(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, 
         label = rf"{label_speed} m/s"
         fontprops = fm.FontProperties(size=24, family='monospace')
         scalebar = AnchoredSizeBar(ax.transData, 2360 * label_speed / speed_max, label, 'upper right',
-                                   sep=10, borderpad=2, pad=1, color='b', fontproperties=fontprops, width=10, frameon=False,
+                                   sep=10, borderpad=2, pad=1, color='white', fontproperties=fontprops, width=10, frameon=False,
                                    size_vertical=100, fill_bar=True)
         ax.add_artist(scalebar)
 
@@ -175,13 +189,14 @@ def out_flow_draw2(img_path, curr_x, curr_y, ctime, k, i, angle_arr, speed_arr, 
                 speed = 0
             elif speed >= 1:
                 speed = 0.999
-            # speed = 0.4 + 0.6 * speed
+            speed = 0.3 + 0.7 * speed
 
             # 颜色表示流速
-            # color = plt.cm.jet(speed)
+            color = plt.cm.jet(speed)
             # color = plt.cm.Blues(speed)
             # color = plt.cm.GnBu(speed)
-            color = 'b'
+            # color = plt.cm.Wistia(speed)
+            # color = 'b'
             alpha = 1
             # 透明度表示流速
             # color = "b"

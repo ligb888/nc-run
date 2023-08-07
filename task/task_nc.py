@@ -4,6 +4,7 @@ import traceback
 from datetime import timedelta, datetime
 from multiprocessing import Process, Pool
 import numpy as np
+from matplotlib import pyplot as plt
 from netCDF4 import Dataset
 from task.task_nc_out import out_img, out_gif, out_excel, out_flow_draw, out_mp4, out_flow_draw2
 from util import utils
@@ -26,11 +27,14 @@ class TaskNcProcess(Process):
             # 数据读入
             nc = Dataset(self.input_path)
 
-            # 流场专题图生成
+            # 流场专题图
             self.out_flow(nc)
 
-            # 图片和excel生成
-            self.img_excel(nc)
+            # 悬浮物浓度专题图
+            self.suspended(nc)
+
+            # 全部的图片和excel生成
+            # self.img_excel(nc)
         except:
             logger.error("下发任务失败" + traceback.format_exc())
         finally:
@@ -39,8 +43,10 @@ class TaskNcProcess(Process):
     def out_flow(self, nc):
         logger.info("开始执行流场专题图任务...")
         try:
+            # 进程池
             pool = Pool(self.cpus)
 
+            # 取出需要的数据
             xc = nc.variables["xc"][:]
             yc = nc.variables["yc"][:]
             u = nc.variables["u"][:]
@@ -115,6 +121,8 @@ class TaskNcProcess(Process):
     def img_excel(self, nc):
         logger.info("开始执行图片excel生成任务...")
         try:
+            # 进程池
+            pool = Pool(self.cpus)
             # data字段数组
             data_var = []
             data_var_type = []
@@ -127,7 +135,7 @@ class TaskNcProcess(Process):
             y = nc.variables["y"][:]
             xc = nc.variables["xc"][:]
             yc = nc.variables["yc"][:]
-            # 本次的输出文件夹
+            vtime = nc.variables["time"][:]
 
             # 判断哪些是data字段，放入data数组
             for var in nc.variables.keys():
@@ -150,9 +158,7 @@ class TaskNcProcess(Process):
                 except():
                     pass
 
-            # 开始下发生成任务
-            pool = Pool(self.cpus)
-            # 遍历数据
+            # 遍历数据，下发任务
             for i in range(len(data_var)):
                 var = data_var[i]
                 var_type = data_var_type[i]
@@ -182,13 +188,14 @@ class TaskNcProcess(Process):
                     img_path = rf"{curr_dir}/{j}.png"
                     curr_x = x if var_type == "2" or var_type == "3" else xc
                     curr_y = y if var_type == "2" or var_type == "3" else yc
+                    ctime = datetime.strptime("1858-11-17 00:00:00", '%Y-%m-%d %H:%M:%S') + timedelta(days=vtime[i])
                     img_data = data[j]
                     if len(data[j].shape) == 2:
                         img_data = data[j][0]
                     # 输出excel任务
                     pool.apply_async(out_excel, args=(excel_path, data[j],))
                     # 输出图片任务
-                    pool.apply_async(out_img, args=(img_path, curr_x, curr_y, vmin, vmax, j, var, img_data,))
+                    pool.apply_async(out_img, args=(img_path, curr_x, curr_y, vmin, vmax, ctime, var, img_data,))
 
             # 遍历数据，下发输出动态图任务
             for var in data_var:
@@ -201,3 +208,60 @@ class TaskNcProcess(Process):
             logger.info("图片excel生成任务完成")
         except:
             logger.info("图片excel生成任务处理出错" + traceback.format_exc())
+
+    def suspended(self, nc):
+        logger.info("开始执行悬浮物浓度专题图任务...")
+        try:
+            # 进程池
+            pool = Pool(self.cpus)
+
+            # 取出需要的数据
+            x = nc.variables["x"][:]
+            y = nc.variables["y"][:]
+            silt = nc.variables["silt"][:]
+            silt_sand = nc.variables["silt_sand"][:]
+            clay = nc.variables["clay"][:]
+            vtime = nc.variables["time"][:]
+
+            # 专题图输出目录
+            curr_dir = rf"{self.output_path}/suspended"
+            if not os.path.exists(curr_dir):
+                os.makedirs(curr_dir)
+
+            # 按时间维度遍历
+            suspended_total = []
+            for i in range(len(vtime)):
+                # 深度求和
+                silt_sum = np.sum(silt[i], 0)
+                silt_sand_sum = np.sum(silt_sand[i], 0)
+                clay_sum = np.sum(clay[i], 0)
+                # 每个点位的三种悬浮物进行求和，并除以深度
+                suspended_arr = []
+                for j in range(len(x)):
+                    suspended = (silt_sum[j] + silt_sand_sum[j] + clay_sum[j]) / len(silt[0])
+                    suspended_arr.append(suspended)
+                suspended_total.append(suspended_arr)
+
+            # 刻度处理
+            all_data = np.sort(np.array(suspended_total).flatten())
+            count = int(len(all_data) * 0.05)
+            if count > 2:
+                all_data = all_data[count:-count]
+            vmin = all_data.min()
+            vmax = all_data.max()
+
+            # 按时间维度遍历
+            for i in range(len(vtime)):
+                img_path = rf"{curr_dir}/{i}"
+                ctime = datetime.strptime("1858-11-17 00:00:00", '%Y-%m-%d %H:%M:%S') + timedelta(days=vtime[i])
+                # 输出任务
+                pool.apply_async(out_img, args=(img_path, x, y, vmin, vmax, ctime, "悬浮物浓度", suspended_total[i], "mg/L",))
+
+            # 等待执行
+            pool.close()
+            pool.join()
+            # 下发输出动态图任务
+            out_gif(curr_dir)
+            logger.info("悬浮物浓度专题图任务处理完成")
+        except:
+            logger.info("悬浮物浓度专题图任务处理出错" + traceback.format_exc())
